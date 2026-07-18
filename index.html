@@ -3,87 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#12181a">
+<meta name="theme-color" content="#0e1416">
 <title>Mon Assistant</title>
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2312181a'/%3E%3Crect x='40' y='22' width='20' height='40' rx='10' fill='%233fae8f'/%3E%3Cpath d='M28 50a22 22 0 0 0 44 0' stroke='%233fae8f' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Cline x1='50' y1='72' x2='50' y2='84' stroke='%233fae8f' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
 
 <style>
   :root {
-    --bg: #f1f4f1;
-    --bg-raised: #ffffff;
+    --bg: #eef2f0;
     --ink: #16211d;
-    --ink-soft: #5b6b62;
-    --line: #d7ded9;
+    --ink-soft: #55655c;
     --accent: #2f8d72;
     --accent-ink: #f1f4f1;
     --live: #c85a30;
-    --bubble-user: #2f8d72;
-    --bubble-user-ink: #f1f4f1;
-    --bubble-assistant: #ffffff;
-    --bubble-assistant-ink: #16211d;
     --danger: #b0432a;
-    --shadow: 0 1px 2px rgba(20, 30, 25, 0.06), 0 8px 24px rgba(20, 30, 25, 0.06);
+
+    --blob-1: #3fae8f;
+    --blob-2: #e8734a;
+    --blob-3: #e0b34a;
+
+    --glass-bg: rgba(255, 255, 255, 0.5);
+    --glass-bg-strong: rgba(255, 255, 255, 0.68);
+    --glass-border: rgba(255, 255, 255, 0.75);
+    --glass-shine: rgba(255, 255, 255, 0.65);
+    --glass-shadow: rgba(30, 50, 40, 0.16);
+
+    --bubble-user-bg: rgba(47, 141, 114, 0.32);
+    --bubble-user-border: rgba(47, 141, 114, 0.45);
+    --bubble-assistant-bg: rgba(255, 255, 255, 0.55);
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #12181a;
-      --bg-raised: #1a2225;
-      --ink: #e8ede9;
-      --ink-soft: #8fa39a;
-      --line: #2a3336;
-      --accent: #3fae8f;
-      --accent-ink: #0c1513;
-      --live: #e8734a;
-      --bubble-user: #3fae8f;
-      --bubble-user-ink: #0c1513;
-      --bubble-assistant: #1a2225;
-      --bubble-assistant-ink: #e8ede9;
-      --danger: #e8734a;
-      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+      --bg: #0e1416;
+      --ink: #eaf0ec;
+      --ink-soft: #9fb0a7;
+      --accent: #4fc79f;
+      --accent-ink: #06110d;
+      --live: #ef8156;
+      --danger: #ef8156;
+
+      --glass-bg: rgba(24, 32, 34, 0.5);
+      --glass-bg-strong: rgba(28, 38, 40, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.14);
+      --glass-shine: rgba(255, 255, 255, 0.14);
+      --glass-shadow: rgba(0, 0, 0, 0.45);
+
+      --bubble-user-bg: rgba(79, 199, 159, 0.22);
+      --bubble-user-border: rgba(79, 199, 159, 0.38);
+      --bubble-assistant-bg: rgba(30, 40, 42, 0.55);
     }
   }
 
   :root[data-theme="dark"] {
-    --bg: #12181a;
-    --bg-raised: #1a2225;
-    --ink: #e8ede9;
-    --ink-soft: #8fa39a;
-    --line: #2a3336;
-    --accent: #3fae8f;
-    --accent-ink: #0c1513;
-    --live: #e8734a;
-    --bubble-user: #3fae8f;
-    --bubble-user-ink: #0c1513;
-    --bubble-assistant: #1a2225;
-    --bubble-assistant-ink: #e8ede9;
-    --danger: #e8734a;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    --bg: #0e1416;
+    --ink: #eaf0ec;
+    --ink-soft: #9fb0a7;
+    --accent: #4fc79f;
+    --accent-ink: #06110d;
+    --live: #ef8156;
+    --danger: #ef8156;
+
+    --glass-bg: rgba(24, 32, 34, 0.5);
+    --glass-bg-strong: rgba(28, 38, 40, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.14);
+    --glass-shine: rgba(255, 255, 255, 0.14);
+    --glass-shadow: rgba(0, 0, 0, 0.45);
+
+    --bubble-user-bg: rgba(79, 199, 159, 0.22);
+    --bubble-user-border: rgba(79, 199, 159, 0.38);
+    --bubble-assistant-bg: rgba(30, 40, 42, 0.55);
   }
 
   :root[data-theme="light"] {
-    --bg: #f1f4f1;
-    --bg-raised: #ffffff;
+    --bg: #eef2f0;
     --ink: #16211d;
-    --ink-soft: #5b6b62;
-    --line: #d7ded9;
+    --ink-soft: #55655c;
     --accent: #2f8d72;
     --accent-ink: #f1f4f1;
     --live: #c85a30;
-    --bubble-user: #2f8d72;
-    --bubble-user-ink: #f1f4f1;
-    --bubble-assistant: #ffffff;
-    --bubble-assistant-ink: #16211d;
     --danger: #b0432a;
-    --shadow: 0 1px 2px rgba(20, 30, 25, 0.06), 0 8px 24px rgba(20, 30, 25, 0.06);
+
+    --glass-bg: rgba(255, 255, 255, 0.5);
+    --glass-bg-strong: rgba(255, 255, 255, 0.68);
+    --glass-border: rgba(255, 255, 255, 0.75);
+    --glass-shine: rgba(255, 255, 255, 0.65);
+    --glass-shadow: rgba(30, 50, 40, 0.16);
+
+    --bubble-user-bg: rgba(47, 141, 114, 0.32);
+    --bubble-user-border: rgba(47, 141, 114, 0.45);
+    --bubble-assistant-bg: rgba(255, 255, 255, 0.55);
   }
 
   * { box-sizing: border-box; }
 
+  html {
+    background: var(--bg);
+  }
   html, body {
     margin: 0;
     height: 100%;
-    background: var(--bg);
     color: var(--ink);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     overflow-x: hidden;
@@ -103,12 +121,76 @@
 
   button { font-family: inherit; }
 
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.55;
+    will-change: transform;
+  }
+  .blob.b1 {
+    width: 60vmax; height: 60vmax;
+    top: -20vmax; left: -18vmax;
+    background: var(--blob-1);
+    animation: drift1 26s ease-in-out infinite;
+  }
+  .blob.b2 {
+    width: 52vmax; height: 52vmax;
+    bottom: -22vmax; right: -16vmax;
+    background: var(--blob-2);
+    animation: drift2 32s ease-in-out infinite;
+  }
+  .blob.b3 {
+    width: 40vmax; height: 40vmax;
+    bottom: 8vmax; left: -10vmax;
+    background: var(--blob-3);
+    opacity: 0.35;
+    animation: drift3 22s ease-in-out infinite;
+  }
+  @keyframes drift1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(6vmax, 8vmax) scale(1.08); }
+  }
+  @keyframes drift2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-7vmax, -5vmax) scale(1.1); }
+  }
+  @keyframes drift3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(5vmax, -6vmax) scale(1.05); }
+  }
+
   #screen {
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  .glass {
+    position: relative;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 1px 1px var(--glass-shine) inset, 0 8px 32px var(--glass-shadow);
+  }
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--glass-shine), transparent 45%);
+    opacity: 0.6;
+    pointer-events: none;
   }
 
   #onboarding {
@@ -119,28 +201,28 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    animation: rise 0.5s ease both;
+    animation: rise 0.6s cubic-bezier(.2,.8,.2,1) both;
   }
 
   @keyframes rise {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
   }
 
   .card {
-    background: var(--bg-raised);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    box-shadow: var(--shadow);
+    border-radius: 26px;
+    padding: 26px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
   }
-
-  #onboarding .card { padding: 24px 20px; display: flex; flex-direction: column; gap: 18px; }
 
   .badge {
     width: 56px; height: 56px; border-radius: 50%;
     background: var(--accent); color: var(--accent-ink);
     display: flex; align-items: center; justify-content: center;
     margin: 0 auto;
+    box-shadow: 0 1px 1px rgba(255,255,255,0.5) inset, 0 6px 18px rgba(0,0,0,0.18);
   }
 
   h1 {
@@ -177,26 +259,32 @@
     font: inherit;
     font-size: 16px;
     padding: 12px 14px;
-    border-radius: 10px;
-    border: 1px solid var(--line);
-    background: var(--bg);
+    border-radius: 14px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.28);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     color: var(--ink);
     width: 100%;
   }
+  input[type="text"]::placeholder, input[type="tel"]::placeholder { color: var(--ink-soft); opacity: 0.8; }
   input[type="text"]:focus, input[type="tel"]:focus {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
   }
 
   button.primary {
+    position: relative;
+    overflow: hidden;
     background: var(--accent);
     color: var(--accent-ink);
     border: none;
-    border-radius: 10px;
+    border-radius: 14px;
     padding: 13px 16px;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
+    box-shadow: 0 1px 1px rgba(255,255,255,0.5) inset, 0 6px 16px rgba(0,0,0,0.16);
   }
   button.primary:active { transform: scale(0.98); }
 
@@ -217,10 +305,12 @@
   }
 
   .topbar {
+    margin: 10px 12px 8px;
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 18px 10px;
+    padding: 12px 16px;
     gap: 12px;
   }
 
@@ -240,6 +330,7 @@
   .status-pill .dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
   }
 
   button.link {
@@ -266,39 +357,45 @@
   }
 
   .msg {
+    position: relative;
+    overflow: hidden;
     padding: 10px 14px;
-    border-radius: 16px;
+    border-radius: 18px;
     font-size: 15px;
     line-height: 1.45;
     max-width: 82%;
-    animation: pop 0.22s ease both;
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 1px 1px var(--glass-shine) inset, 0 4px 14px var(--glass-shadow);
+    animation: pop 0.25s cubic-bezier(.2,.8,.2,1) both;
   }
   @keyframes pop {
-    from { opacity: 0; transform: translateY(6px) scale(0.98); }
+    from { opacity: 0; transform: translateY(8px) scale(0.97); }
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
   .msg.user {
     align-self: flex-end;
-    background: var(--bubble-user);
-    color: var(--bubble-user-ink);
-    border-bottom-right-radius: 4px;
+    background: var(--bubble-user-bg);
+    border-color: var(--bubble-user-border);
+    color: var(--ink);
+    border-bottom-right-radius: 6px;
   }
   .msg.assistant {
     align-self: flex-start;
-    background: var(--bubble-assistant);
-    color: var(--bubble-assistant-ink);
-    border: 1px solid var(--line);
-    border-bottom-left-radius: 4px;
+    background: var(--bubble-assistant-bg);
+    color: var(--ink);
+    border-bottom-left-radius: 6px;
   }
 
   .console {
-    padding: 10px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    margin: 8px 12px calc(14px + env(safe-area-inset-bottom, 0px));
+    border-radius: 28px;
+    padding: 16px 16px 18px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    border-top: 1px solid var(--line);
-    background: var(--bg);
   }
 
   .status-line {
@@ -325,15 +422,18 @@
     top: 12px; left: 12px;
     width: 84px; height: 84px;
     border-radius: 50%;
-    border: none;
+    border: 1px solid var(--glass-border);
     cursor: pointer;
-    background: var(--accent);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 85%, white 15%), var(--accent));
     color: var(--accent-ink);
     display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 2px 2px rgba(255,255,255,0.55) inset, 0 10px 26px var(--glass-shadow);
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
   }
   #micBtn:active { transform: scale(0.96); }
-  #micBtn.listening { background: var(--live); }
+  #micBtn.listening {
+    background: linear-gradient(160deg, color-mix(in srgb, var(--live) 85%, white 15%), var(--live));
+  }
   #micBtn[disabled] { opacity: 0.4; cursor: default; }
 
   #textForm {
@@ -345,23 +445,33 @@
     flex: 1;
     font-size: 16px;
     padding: 12px 14px;
-    border-radius: 10px;
-    border: 1px solid var(--line);
-    background: var(--bg-raised);
+    border-radius: 14px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.28);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     color: var(--ink);
   }
+  #textInput::placeholder { color: var(--ink-soft); opacity: 0.8; }
   #textInput:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   #textForm button.primary { flex-shrink: 0; padding: 12px 18px; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+    .blob { animation: none !important; }
   }
 </style>
 </head>
 <body>
+<div class="backdrop" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
 <div id="screen">
   <div id="onboarding">
-    <div class="card">
+    <div class="card glass">
       <div class="badge" aria-hidden="true">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"/>
@@ -385,7 +495,7 @@
   </div>
 
   <div id="app">
-    <div class="topbar">
+    <div class="topbar glass">
       <div class="who">
         <span class="eyebrow">Mon Assistant</span>
         <span class="name" id="greeting">—</span>
@@ -400,7 +510,7 @@
       <p class="empty-hint" id="emptyHint">Touche le micro et parle, ou écris ton message ci-dessous. Je peux gérer l'agenda partagé, tes contacts, tes emails et tes messages.</p>
     </div>
 
-    <div class="console">
+    <div class="console glass">
       <div class="status-line" id="status">Prêt</div>
       <div class="mic-wrap">
         <canvas id="waveCanvas" width="216" height="216"></canvas>
