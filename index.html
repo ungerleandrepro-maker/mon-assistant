@@ -585,16 +585,10 @@
       recognition.interimResults = true;
 
       var isListening = false;
+      var userRequestedStop = false;
       var finalTranscript = '';
 
-      recognition.onstart = function () {
-        isListening = true;
-        finalTranscript = '';
-        micBtn.classList.add('listening');
-        startWave();
-        setStatus('Écoute… touche à nouveau quand tu as fini');
-      };
-      recognition.onend = function () {
+      function finishListening() {
         isListening = false;
         micBtn.classList.remove('listening');
         stopWave();
@@ -605,18 +599,34 @@
         } else {
           setStatus('Prêt');
         }
+      }
+
+      recognition.onstart = function () {
+        micBtn.classList.add('listening');
+        startWave();
+        setStatus('Écoute… touche à nouveau quand tu as fini');
+      };
+      recognition.onend = function () {
+        if (!isListening || userRequestedStop) {
+          finishListening();
+          return;
+        }
+        try {
+          recognition.start();
+        } catch (e) {
+          finishListening();
+        }
       };
       recognition.onerror = function (event) {
-        isListening = false;
-        micBtn.classList.remove('listening');
-        stopWave();
+        if (event.error === 'no-speech' || event.error === 'aborted') {
+          return;
+        }
+        userRequestedStop = true;
         var messages = {
           'not-allowed': "Micro refusé : autorise le micro pour ce site dans les réglages du navigateur.",
           'service-not-allowed': "Micro refusé : autorise le micro pour ce site dans les réglages du navigateur.",
-          'no-speech': "Je n'ai rien entendu, réessaie ou écris ton message.",
           'audio-capture': "Aucun micro détecté sur cet appareil.",
-          'network': "Problème réseau avec la reconnaissance vocale, réessaie ou écris ton message.",
-          'aborted': ''
+          'network': "Problème réseau avec la reconnaissance vocale, réessaie ou écris ton message."
         };
         var msg = messages[event.error];
         if (msg) { setStatus(msg, true); }
@@ -638,18 +648,23 @@
 
       micBtn.addEventListener('click', function () {
         if (isListening) {
+          userRequestedStop = true;
           recognition.stop();
           return;
         }
+        userRequestedStop = false;
+        finalTranscript = '';
         setStatus('Demande du micro…');
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
             stream.getTracks().forEach(function (t) { t.stop(); });
+            isListening = true;
             try { recognition.start(); } catch (e) {}
           }).catch(function () {
             setStatus('Micro refusé : autorise le micro pour ce site, ou écris ton message.', true);
           });
         } else {
+          isListening = true;
           try { recognition.start(); } catch (e) {}
         }
       });
