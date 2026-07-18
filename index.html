@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#12181a">
+<title>Mon Assistant</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2312181a'/%3E%3Crect x='40' y='22' width='20' height='40' rx='10' fill='%233fae8f'/%3E%3Cpath d='M28 50a22 22 0 0 0 44 0' stroke='%233fae8f' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Cline x1='50' y1='72' x2='50' y2='84' stroke='%233fae8f' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+
+<style>
+  :root {
+    --bg: #f1f4f1;
+    --bg-raised: #ffffff;
+    --ink: #16211d;
+    --ink-soft: #5b6b62;
+    --line: #d7ded9;
+    --accent: #2f8d72;
+    --accent-ink: #f1f4f1;
+    --live: #c85a30;
+    --bubble-user: #2f8d72;
+    --bubble-user-ink: #f1f4f1;
+    --bubble-assistant: #ffffff;
+    --bubble-assistant-ink: #16211d;
+    --danger: #b0432a;
+    --shadow: 0 1px 2px rgba(20, 30, 25, 0.06), 0 8px 24px rgba(20, 30, 25, 0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12181a;
+      --bg-raised: #1a2225;
+      --ink: #e8ede9;
+      --ink-soft: #8fa39a;
+      --line: #2a3336;
+      --accent: #3fae8f;
+      --accent-ink: #0c1513;
+      --live: #e8734a;
+      --bubble-user: #3fae8f;
+      --bubble-user-ink: #0c1513;
+      --bubble-assistant: #1a2225;
+      --bubble-assistant-ink: #e8ede9;
+      --danger: #e8734a;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #12181a;
+    --bg-raised: #1a2225;
+    --ink: #e8ede9;
+    --ink-soft: #8fa39a;
+    --line: #2a3336;
+    --accent: #3fae8f;
+    --accent-ink: #0c1513;
+    --live: #e8734a;
+    --bubble-user: #3fae8f;
+    --bubble-user-ink: #0c1513;
+    --bubble-assistant: #1a2225;
+    --bubble-assistant-ink: #e8ede9;
+    --danger: #e8734a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  :root[data-theme="light"] {
+    --bg: #f1f4f1;
+    --bg-raised: #ffffff;
+    --ink: #16211d;
+    --ink-soft: #5b6b62;
+    --line: #d7ded9;
+    --accent: #2f8d72;
+    --accent-ink: #f1f4f1;
+    --live: #c85a30;
+    --bubble-user: #2f8d72;
+    --bubble-user-ink: #f1f4f1;
+    --bubble-assistant: #ffffff;
+    --bubble-assistant-ink: #16211d;
+    --danger: #b0432a;
+    --shadow: 0 1px 2px rgba(20, 30, 25, 0.06), 0 8px 24px rgba(20, 30, 25, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+  }
+
+  .mono {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+  }
+
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  button { font-family: inherit; }
+
+  #screen {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #onboarding {
+    width: 100%;
+    max-width: 380px;
+    margin: auto;
+    padding: 32px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: rise 0.5s ease both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card {
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  #onboarding .card { padding: 24px 20px; display: flex; flex-direction: column; gap: 18px; }
+
+  .badge {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent); color: var(--accent-ink);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 21px;
+    font-weight: 650;
+    margin: 0;
+    text-wrap: balance;
+    text-align: center;
+  }
+
+  .lede {
+    color: var(--ink-soft);
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+    margin: 0;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .label-text {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  input[type="text"], input[type="tel"] {
+    font: inherit;
+    font-size: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    width: 100%;
+  }
+  input[type="text"]:focus, input[type="tel"]:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  button.primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.primary:active { transform: scale(0.98); }
+
+  .field-error {
+    color: var(--danger);
+    font-size: 13px;
+    display: none;
+  }
+
+  #app {
+    display: none;
+    width: 100%;
+    max-width: 460px;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0 auto;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 10px;
+    gap: 12px;
+  }
+
+  .who { display: flex; flex-direction: column; gap: 2px; }
+  .who .name { font-weight: 650; font-size: 16px; }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .status-pill .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+  }
+
+  button.link {
+    background: none; border: none; color: var(--ink-soft);
+    font-size: 13px; text-decoration: underline; cursor: pointer; padding: 4px;
+  }
+
+  #log {
+    flex: 1;
+    padding: 8px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+  }
+
+  .empty-hint {
+    margin: auto;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    max-width: 240px;
+    line-height: 1.5;
+  }
+
+  .msg {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 15px;
+    line-height: 1.45;
+    max-width: 82%;
+    animation: pop 0.22s ease both;
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(6px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .msg.user {
+    align-self: flex-end;
+    background: var(--bubble-user);
+    color: var(--bubble-user-ink);
+    border-bottom-right-radius: 4px;
+  }
+  .msg.assistant {
+    align-self: flex-start;
+    background: var(--bubble-assistant);
+    color: var(--bubble-assistant-ink);
+    border: 1px solid var(--line);
+    border-bottom-left-radius: 4px;
+  }
+
+  .console {
+    padding: 10px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+  }
+
+  .status-line {
+    min-height: 16px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+  .status-line.err { color: var(--danger); }
+
+  .mic-wrap { position: relative; width: 108px; height: 108px; }
+
+  #waveCanvas {
+    position: absolute; inset: 0;
+    width: 108px; height: 108px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  #waveCanvas.active { opacity: 1; }
+
+  #micBtn {
+    position: absolute;
+    top: 12px; left: 12px;
+    width: 84px; height: 84px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: var(--accent);
+    color: var(--accent-ink);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  #micBtn:active { transform: scale(0.96); }
+  #micBtn.listening { background: var(--live); }
+  #micBtn[disabled] { opacity: 0.4; cursor: default; }
+
+  #textForm {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+  #textInput {
+    flex: 1;
+    font-size: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--ink);
+  }
+  #textInput:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  #textForm button.primary { flex-shrink: 0; padding: 12px 18px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+<div id="screen">
+  <div id="onboarding">
+    <div class="card">
+      <div class="badge" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"/>
+          <path d="M6 11a6 6 0 0 0 12 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>Mon Assistant</h1>
+      <p class="lede">Pour commencer, dis-nous qui tu es. Un administrateur doit t'avoir autorisé au préalable.</p>
+      <label>
+        <span class="label-text">Prénom</span>
+        <input id="obName" type="text" placeholder="Léandre" autocomplete="given-name">
+      </label>
+      <label>
+        <span class="label-text">Numéro de téléphone</span>
+        <input id="obPhone" type="tel" placeholder="+33612345678" autocomplete="tel">
+      </label>
+      <button id="obSubmit" class="primary">Commencer</button>
+      <p id="obError" class="field-error"></p>
+    </div>
+  </div>
+
+  <div id="app">
+    <div class="topbar">
+      <div class="who">
+        <span class="eyebrow">Mon Assistant</span>
+        <span class="name" id="greeting">—</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="status-pill"><span class="dot"></span><span id="connState">en ligne</span></span>
+        <button id="switchUser" class="link">Changer</button>
+      </div>
+    </div>
+
+    <div id="log">
+      <p class="empty-hint" id="emptyHint">Touche le micro et parle, ou écris ton message ci-dessous. Je peux gérer l'agenda partagé, tes contacts, tes emails et tes messages.</p>
+    </div>
+
+    <div class="console">
+      <div class="status-line" id="status">Prêt</div>
+      <div class="mic-wrap">
+        <canvas id="waveCanvas" width="216" height="216"></canvas>
+        <button id="micBtn" aria-label="Parler">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+            <rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"/>
+            <path d="M6 11a6 6 0 0 0 12 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <form id="textForm">
+        <input id="textInput" type="text" placeholder="Écris ton message…" autocomplete="off">
+        <button type="submit" class="primary">Envoyer</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var API_BASE = 'https://n8n-z4ua.srv1822006.hstgr.cloud/webhook/assistant-app';
+  var USER_KEY = 'assistant_user';
+
+  function getUser() {
+    try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); } catch (e) { return null; }
+  }
+  function setUser(u) {
+    try { localStorage.setItem(USER_KEY, JSON.stringify(u)); } catch (e) {}
+  }
+
+  var onboardingEl = document.getElementById('onboarding');
+  var appEl = document.getElementById('app');
+  var user = getUser();
+
+  function showApp() {
+    onboardingEl.style.display = 'none';
+    appEl.style.display = 'flex';
+    document.getElementById('greeting').textContent = user.name;
+    initApp();
+  }
+
+  document.getElementById('obSubmit').addEventListener('click', function () {
+    try {
+      var name = document.getElementById('obName').value.trim();
+      var phone = document.getElementById('obPhone').value.trim();
+      var errEl = document.getElementById('obError');
+      if (!name || !phone) {
+        errEl.textContent = 'Merci de renseigner ton prénom et ton numéro.';
+        errEl.style.display = 'block';
+        return;
+      }
+      user = { name: name, phone: phone };
+      setUser(user);
+      showApp();
+    } catch (err) {
+      var errEl2 = document.getElementById('obError');
+      errEl2.textContent = 'Erreur inattendue : ' + (err && err.message ? err.message : String(err));
+      errEl2.style.display = 'block';
+    }
+  });
+
+  document.getElementById('switchUser').addEventListener('click', function () {
+    try { localStorage.removeItem(USER_KEY); } catch (e) {}
+    location.reload();
+  });
+
+  if (user && user.name && user.phone) {
+    showApp();
+  }
+
+  function initApp() {
+    var micBtn = document.getElementById('micBtn');
+    var statusEl = document.getElementById('status');
+    var logEl = document.getElementById('log');
+    var emptyHint = document.getElementById('emptyHint');
+    var textForm = document.getElementById('textForm');
+    var textInput = document.getElementById('textInput');
+    var canvas = document.getElementById('waveCanvas');
+    var ctx = canvas.getContext('2d');
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function appendMessage(who, text) {
+      if (emptyHint) { emptyHint.remove(); emptyHint = null; }
+      var div = document.createElement('div');
+      div.className = 'msg ' + who;
+      div.textContent = text;
+      logEl.appendChild(div);
+      div.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'end' });
+    }
+
+    function setStatus(text, isError) {
+      statusEl.textContent = text;
+      statusEl.classList.toggle('err', !!isError);
+    }
+
+    function speak(text) {
+      if (!('speechSynthesis' in window)) return;
+      var utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'fr-FR';
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utter);
+    }
+
+    async function sendToAssistant(text) {
+      if (!text || !text.trim()) return;
+      setStatus('Réflexion…');
+      try {
+        var res = await fetch(API_BASE + '/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, name: user.name, phone: user.phone })
+        });
+        var data = await res.json();
+        var reply = (data && data.reply) ? data.reply : "Désolé, je n'ai pas pu répondre.";
+        appendMessage('assistant', reply);
+        speak(reply);
+        setStatus('Prêt');
+      } catch (err) {
+        setStatus("Erreur de connexion à l'assistant", true);
+      }
+    }
+
+    textForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var text = textInput.value;
+      if (!text.trim()) return;
+      textInput.value = '';
+      appendMessage('user', text);
+      sendToAssistant(text);
+    });
+
+    var waveRAF = null;
+    var waveStart = 0;
+    function drawWave(ts) {
+      if (!waveStart) waveStart = ts;
+      var t = (ts - waveStart) / 1000;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var cx = canvas.width / 2, cy = canvas.height / 2;
+      var bars = 28;
+      var accent = getComputedStyle(document.documentElement).getPropertyValue('--live').trim() || '#e8734a';
+      ctx.strokeStyle = accent;
+      ctx.lineCap = 'round';
+      for (var i = 0; i < bars; i++) {
+        var angle = (i / bars) * Math.PI * 2;
+        var amp = reduceMotion ? 6 : (6 + 10 * Math.abs(Math.sin(t * 3 + i * 0.6)));
+        var r1 = 78;
+        var r2 = r1 + amp;
+        ctx.globalAlpha = 0.35 + 0.5 * Math.abs(Math.sin(t * 3 + i * 0.6));
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(angle) * r1, cy + Math.sin(angle) * r1);
+        ctx.lineTo(cx + Math.cos(angle) * r2, cy + Math.sin(angle) * r2);
+        ctx.stroke();
+      }
+      waveRAF = requestAnimationFrame(drawWave);
+    }
+    function startWave() {
+      canvas.classList.add('active');
+      waveStart = 0;
+      if (!reduceMotion) {
+        waveRAF = requestAnimationFrame(drawWave);
+      } else {
+        drawWave(0);
+      }
+    }
+    function stopWave() {
+      canvas.classList.remove('active');
+      if (waveRAF) cancelAnimationFrame(waveRAF);
+      waveRAF = null;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    var SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionImpl) {
+      micBtn.disabled = true;
+      setStatus('Micro non supporté ici — écris ton message ci-dessous');
+    } else {
+      var recognition = new SpeechRecognitionImpl();
+      recognition.lang = 'fr-FR';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = function () {
+        micBtn.classList.add('listening');
+        startWave();
+        setStatus('Écoute…');
+      };
+      recognition.onend = function () {
+        micBtn.classList.remove('listening');
+        stopWave();
+      };
+      recognition.onerror = function (event) {
+        micBtn.classList.remove('listening');
+        stopWave();
+        var messages = {
+          'not-allowed': "Micro refusé : autorise le micro pour ce site dans les réglages du navigateur.",
+          'service-not-allowed': "Micro refusé : autorise le micro pour ce site dans les réglages du navigateur.",
+          'no-speech': "Je n'ai rien entendu, réessaie ou écris ton message.",
+          'audio-capture': "Aucun micro détecté sur cet appareil.",
+          'network': "Problème réseau avec la reconnaissance vocale, réessaie ou écris ton message."
+        };
+        setStatus(messages[event.error] || ('Erreur du micro (' + event.error + '), écris ton message.'), true);
+      };
+      recognition.onresult = function (event) {
+        var transcript = event.results[0][0].transcript;
+        appendMessage('user', transcript);
+        sendToAssistant(transcript);
+      };
+
+      micBtn.addEventListener('click', function () {
+        setStatus('Demande du micro…');
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+            stream.getTracks().forEach(function (t) { t.stop(); });
+            try { recognition.start(); } catch (e) {}
+          }).catch(function () {
+            setStatus('Micro refusé : autorise le micro pour ce site, ou écris ton message.', true);
+          });
+        } else {
+          try { recognition.start(); } catch (e) {}
+        }
+      });
+    }
+  }
+})();
+</script>
+</body>
+</html>
