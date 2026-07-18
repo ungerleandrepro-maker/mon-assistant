@@ -581,19 +581,33 @@
     } else {
       var recognition = new SpeechRecognitionImpl();
       recognition.lang = 'fr-FR';
-      recognition.continuous = false;
-      recognition.interimResults = false;
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      var isListening = false;
+      var finalTranscript = '';
 
       recognition.onstart = function () {
+        isListening = true;
+        finalTranscript = '';
         micBtn.classList.add('listening');
         startWave();
-        setStatus('Écoute…');
+        setStatus('Écoute… touche à nouveau quand tu as fini');
       };
       recognition.onend = function () {
+        isListening = false;
         micBtn.classList.remove('listening');
         stopWave();
+        var text = finalTranscript.trim();
+        if (text) {
+          appendMessage('user', text);
+          sendToAssistant(text);
+        } else {
+          setStatus('Prêt');
+        }
       };
       recognition.onerror = function (event) {
+        isListening = false;
         micBtn.classList.remove('listening');
         stopWave();
         var messages = {
@@ -601,17 +615,32 @@
           'service-not-allowed': "Micro refusé : autorise le micro pour ce site dans les réglages du navigateur.",
           'no-speech': "Je n'ai rien entendu, réessaie ou écris ton message.",
           'audio-capture': "Aucun micro détecté sur cet appareil.",
-          'network': "Problème réseau avec la reconnaissance vocale, réessaie ou écris ton message."
+          'network': "Problème réseau avec la reconnaissance vocale, réessaie ou écris ton message.",
+          'aborted': ''
         };
-        setStatus(messages[event.error] || ('Erreur du micro (' + event.error + '), écris ton message.'), true);
+        var msg = messages[event.error];
+        if (msg) { setStatus(msg, true); }
       };
       recognition.onresult = function (event) {
-        var transcript = event.results[0][0].transcript;
-        appendMessage('user', transcript);
-        sendToAssistant(transcript);
+        var interim = '';
+        for (var i = event.resultIndex; i < event.results.length; i++) {
+          var transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            interim += transcript;
+          }
+        }
+        if (interim) {
+          setStatus('« ' + interim + ' »');
+        }
       };
 
       micBtn.addEventListener('click', function () {
+        if (isListening) {
+          recognition.stop();
+          return;
+        }
         setStatus('Demande du micro…');
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
