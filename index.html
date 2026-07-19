@@ -694,122 +694,110 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    var SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognitionImpl) {
+    var MediaRecorderImpl = window.MediaRecorder;
+    if (!MediaRecorderImpl || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       micBtn.disabled = true;
       setStatus('Micro non supporté ici — écris ton message ci-dessous');
     } else {
-      var recognition = new SpeechRecognitionImpl();
-      recognition.lang = 'fr-FR';
-      recognition.continuous = true;
-      recognition.interimResults = true;
+      var isRecording = false;
+      var mediaRecorder = null;
+      var audioChunks = [];
+      var activeStream = null;
 
-      var isListening = false;
-      var userRequestedStop = false;
-      var finalTranscript = '';
-
-      function appendFinalSegment(base, addition) {
-        addition = addition.trim();
-        if (!addition) return base;
-        var baseWords = base.trim() ? base.trim().split(/\s+/) : [];
-        var addWords = addition.split(/\s+/);
-        var maxOverlap = Math.min(baseWords.length, addWords.length, 8);
-        for (var len = maxOverlap; len > 0; len--) {
-          var tail = baseWords.slice(baseWords.length - len).join(' ').toLowerCase();
-          var head = addWords.slice(0, len).join(' ').toLowerCase();
-          if (tail === head) {
-            addWords = addWords.slice(len);
-            break;
+      function pickMimeType() {
+        var candidates = ['audio/webm', 'audio/mp4', 'audio/ogg'];
+        for (var i = 0; i < candidates.length; i++) {
+          if (MediaRecorderImpl.isTypeSupported && MediaRecorderImpl.isTypeSupported(candidates[i])) {
+            return candidates[i];
           }
         }
-        var rest = addWords.join(' ');
-        if (!rest) return base;
-        return (base.trim() ? base.trim() + ' ' : '') + rest;
+        return '';
       }
 
-      function finishListening() {
-        isListening = false;
-        micBtn.classList.remove('listening');
-        stopWave();
-        var text = finalTranscript.trim();
-        if (text) {
-          appendMessage('user', text);
-          sendToAssistant(text);
-        } else {
-          setStatus('Prêt');
+      function extensionFor(mimeType) {
+        if (mimeType.indexOf('mp4') !== -1) return 'm4a';
+        if (mimeType.indexOf('ogg') !== -1) return 'ogg';
+        return 'webm';
+      }
+
+      function stopStreamTracks() {
+        if (activeStream) {
+          activeStream.getTracks().forEach(function (t) { t.stop(); });
+          activeStream = null;
         }
       }
 
-      recognition.onstart = function () {
-        micBtn.classList.add('listening');
-        startWave();
-        setStatus('Écoute… touche à nouveau quand tu as fini');
-      };
-      recognition.onend = function () {
-        if (!isListening || userRequestedStop) {
-          finishListening();
-          return;
-        }
+      async function transcribeAndSend(blob, mimeType) {
+        setStatus('Transcription…');
         try {
-          recognition.start();
-        } catch (e) {
-          finishListening();
-        }
-      };
-      recognition.onerror = function (event) {
-        if (event.error === 'no-speech' || event.error === 'aborted') {
-          return;
-        }
-        userRequestedStop = true;
-        var messages = {
-          'not-allowed': "Micro refusé : autorise le micro pour ce site dans les réglages du navigateur.",
-          'service-not-allowed': "Micro refusé : autorise le micro pour ce site dans les réglages du navigateur.",
-          'audio-capture': "Aucun micro détecté sur cet appareil.",
-          'network': "Problème réseau avec la reconnaissance vocale, réessaie ou écris ton message."
-        };
-        var msg = messages[event.error];
-        if (msg) { setStatus(msg, true); }
-      };
-      recognition.onresult = function (event) {
-        var interim = '';
-        for (var i = event.resultIndex; i < event.results.length; i++) {
-          var transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript = appendFinalSegment(finalTranscript, transcript);
+          var formData = new FormData();
+          formData.append('data', blob, 'audio.' + extensionFor(mimeType));
+          formData.append('phone', user.phone);
+          var res = await fetch(API_BASE + '/transcribe', {
+            method: 'POST',
+            body: formData
+          });
+          var data = await res.json();
+          var text = data && data.text ? data.text.trim() : '';
+          if (text) {
+            appendMessage('user', text);
+            sendToAssistant(text);
           } else {
-            interim += transcript;
+            setStatus("Je n'ai rien entendu, réessaie ou écris ton message.", true);
           }
+        } catch (err) {
+          setStatus('Erreur de transcription, réessaie ou écris ton message.', true);
         }
-        if (interim) {
-          setStatus('« ' + interim + ' »');
-        }
-      };
+      }
+
+      function startRecording() {
+        setStatus('Demande du micro…');
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+          activeStream = stream;
+          var mimeType = pickMimeType();
+          try {
+            mediaRecorder = mimeType ? new MediaRecorderImpl(stream, { mimeType: mimeType }) : new MediaRecorderImpl(stream);
+          } catch (e) {
+            setStatus('Micro indisponible, réessaie ou écris ton message.', true);
+            stopStreamTracks();
+            return;
+          }
+          audioChunks = [];
+          mediaRecorder.addEventListener('dataavailable', function (e) {
+            if (e.data && e.data.size > 0) audioChunks.push(e.data);
+          });
+          mediaRecorder.addEventListener('stop', function () {
+            stopStreamTracks();
+            micBtn.classList.remove('listening');
+            stopWave();
+            isRecording = false;
+            if (audioChunks.length) {
+              var blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || mimeType || 'audio/webm' });
+              transcribeAndSend(blob, blob.type);
+            } else {
+              setStatus('Prêt');
+            }
+          });
+          mediaRecorder.start();
+          isRecording = true;
+          micBtn.classList.add('listening');
+          startWave();
+          setStatus('Écoute… touche à nouveau quand tu as fini');
+        }).catch(function () {
+          setStatus('Micro refusé : autorise le micro pour ce site, ou écris ton message.', true);
+        });
+      }
 
       micBtn.addEventListener('click', function () {
-        if (isListening) {
-          userRequestedStop = true;
-          recognition.stop();
+        if (isRecording) {
+          mediaRecorder.stop();
           return;
         }
-        userRequestedStop = false;
-        finalTranscript = '';
-        setStatus('Demande du micro…');
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
-            stream.getTracks().forEach(function (t) { t.stop(); });
-            isListening = true;
-            try { recognition.start(); } catch (e) {}
-          }).catch(function () {
-            setStatus('Micro refusé : autorise le micro pour ce site, ou écris ton message.', true);
-          });
-        } else {
-          isListening = true;
-          try { recognition.start(); } catch (e) {}
-        }
+        startRecording();
       });
     }
   }
 })();
 </script>
 </body>
-</html>*
+</html>
