@@ -708,6 +708,25 @@
       var userRequestedStop = false;
       var finalTranscript = '';
 
+      function appendFinalSegment(base, addition) {
+        addition = addition.trim();
+        if (!addition) return base;
+        var baseWords = base.trim() ? base.trim().split(/\s+/) : [];
+        var addWords = addition.split(/\s+/);
+        var maxOverlap = Math.min(baseWords.length, addWords.length, 8);
+        for (var len = maxOverlap; len > 0; len--) {
+          var tail = baseWords.slice(baseWords.length - len).join(' ').toLowerCase();
+          var head = addWords.slice(0, len).join(' ').toLowerCase();
+          if (tail === head) {
+            addWords = addWords.slice(len);
+            break;
+          }
+        }
+        var rest = addWords.join(' ');
+        if (!rest) return base;
+        return (base.trim() ? base.trim() + ' ' : '') + rest;
+      }
+
       function finishListening() {
         isListening = false;
         micBtn.classList.remove('listening');
@@ -756,7 +775,7 @@
         for (var i = event.resultIndex; i < event.results.length; i++) {
           var transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalTranscript += transcript + ' ';
+            finalTranscript = appendFinalSegment(finalTranscript, transcript);
           } else {
             interim += transcript;
           }
@@ -793,5 +812,4 @@
 })();
 </script>
 </body>
-</html>
-```
+</html>*
