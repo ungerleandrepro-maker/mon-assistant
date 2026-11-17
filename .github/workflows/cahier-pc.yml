@@ -1,0 +1,43 @@
+name: Cahier app (PC)
+
+on:
+  push:
+    branches: [cahier-app]
+    paths: ["cahier-pc/**", ".github/workflows/cahier-pc.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: cahier-pc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install --no-audit --no-fund
+      - run: npm run dist
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: le-cahier-pc
+          path: |
+            cahier-pc/dist/le-cahier-pc-installation.exe
+            cahier-pc/dist/le-cahier-pc-portable.exe
+      - name: Publier la version
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: cahier-pc-v${{ github.run_number }}
+          name: Le cahier PC ${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          make_latest: false
+          body: "App PC (Windows) du cahier. Télécharge le-cahier-pc-installation.exe et lance-le."
+          files: |
+            cahier-pc/dist/le-cahier-pc-installation.exe
+            cahier-pc/dist/le-cahier-pc-portable.exe

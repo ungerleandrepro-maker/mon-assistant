@@ -1,0 +1,32 @@
+{
+  "name": "le-cahier",
+  "productName": "Le cahier",
+  "version": "1.0.0",
+  "description": "Le cahier de cours, en app sur le PC : transcrit en arrière-plan les audios envoyés par le téléphone.",
+  "main": "main.js",
+  "author": "Leandre",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis portable --publish never"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "fr.leandre.cahier",
+    "productName": "Le cahier",
+    "files": ["main.js", "tray.png", "build/icon.png"],
+    "directories": { "output": "dist" },
+    "win": { "icon": "build/icon.png" },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "shortcutName": "Le cahier",
+      "artifactName": "le-cahier-pc-installation.exe"
+    },
+    "portable": { "artifactName": "le-cahier-pc-portable.exe" }
+  }
+}
