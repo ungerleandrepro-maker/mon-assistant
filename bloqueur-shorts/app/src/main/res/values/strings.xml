@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bloqueur Shorts</string>
+    <string name="service_name">Bloqueur Shorts</string>
+    <string name="service_description">Détecte l\'ouverture des Reels Instagram, de TikTok et des Shorts YouTube et vous fait sortir automatiquement. Aucune donnée n\'est collectée ni envoyée.</string>
+</resources>
